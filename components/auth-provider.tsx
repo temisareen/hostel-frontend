@@ -106,9 +106,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.message || "Login failed")
+        console.error("API error details:", data.errors) // <-- log validation errors
+        throw new Error(data.message || "Registration failed")
       }
-
+      
       localStorage.setItem("user", JSON.stringify(data.user))
       localStorage.setItem("token", data.token)
       setUser(data.user)
