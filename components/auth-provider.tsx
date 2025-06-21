@@ -1,83 +1,125 @@
 "use client"
 
-import type React from "react"
-
-import { createContext, useContext, useState, useEffect } from "react"
-
-interface User {
-  id: string
-  name: string
-  email: string
-  matricNumber?: string
-  role: "student" | "admin"
-}
+import React, { createContext, useContext, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 interface AuthContextType {
-  user: User | null
+  user: any
   login: (email: string, password: string, role: "student" | "admin") => Promise<boolean>
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    matricNumber: string,
+    role?: "student" | "admin"
+  ) => Promise<boolean>
   logout: () => void
-  register: (name: string, email: string, password: string, matricNumber: string) => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<any>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user")
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
     }
   }, [])
 
-  const login = async (email: string, password: string, role: "student" | "admin"): Promise<boolean> => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    matricNumber: string,
+    role: "student" | "admin" = "student"
+  ) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          matricNumber,
+          role,
+        }),
+      })
 
-    // Mock authentication
-    if (email === "admin@caleb.edu.ng" && password === "admin123" && role === "admin") {
-      const adminUser = { id: "1", name: "Admin User", email, role: "admin" as const }
-      setUser(adminUser)
-      localStorage.setItem("user", JSON.stringify(adminUser))
-      return true
-    } else if (email === "student@caleb.edu.ng" && password === "student123" && role === "student") {
-      const studentUser = {
-        id: "2",
-        name: "John Doe",
-        email,
-        matricNumber: "21/1234",
-        role: "student" as const,
-        role: "student",
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.message || "Registration failed")
       }
-      setUser(studentUser)
-      localStorage.setItem("user", JSON.stringify(studentUser))
+
+      // Optional: Automatically login after register
+      localStorage.setItem("user", JSON.stringify(data.user))
+      localStorage.setItem("token", data.token)
+      setUser(data.user)
+
       return true
+    } catch (err) {
+      console.error("Registration error:", err)
+      return false
     }
-    return false
   }
 
-  const register = async (name: string, email: string, password: string, matricNumber: string): Promise<boolean> => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+  const login = async (
+    email: string,
+    password: string,
+    role: "student" | "admin"
+  ): Promise<boolean> => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
 
-    const newUser = { id: Date.now().toString(), name, email, matricNumber, role: "student" as const }
-    setUser(newUser)
-    localStorage.setItem("user", JSON.stringify(newUser))
-    return true
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed")
+      }
+
+      localStorage.setItem("user", JSON.stringify(data.user))
+      localStorage.setItem("token", data.token)
+      setUser(data.user)
+
+      return true
+    } catch (err) {
+      console.error("Login error:", err)
+      return false
+    }
   }
 
   const logout = () => {
-    setUser(null)
     localStorage.removeItem("user")
+    localStorage.removeItem("token")
+    setUser(null)
+    router.push("/login")
   }
 
-  return <AuthContext.Provider value={{ user, login, logout, register }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
-export function useAuth() {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
