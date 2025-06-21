@@ -14,7 +14,7 @@ interface AuthContextType {
     role?: "student" | "admin",
     department?: string,
     level?: string,
-    phone?: string,
+    phoneNumber?: string,
     gender?: string
   ) => Promise<boolean>
   
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     role: "student" | "admin" = "student",
     department?: string,
     level?: string,
-    phone?: string,
+    phoneNumber?: string,
     gender?: string
   ): Promise<boolean> => {
     try {
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           department,
           level,
           gender,
-          phone,
+          phoneNumber,
         }),
       })
   

@@ -23,7 +23,7 @@ export default function RegisterPage() {
     matricNumber: "",
     department: "",
     level: "",
-    phone: "",
+    phoneNumber: "",
     gender: "",
     role: "student",
   })
@@ -73,7 +73,7 @@ export default function RegisterPage() {
         formData.role as "student" | "admin",
         formData.department,
         formData.level,
-        formData.phone,
+        formData.phoneNumber,
         formData.gender
       )
 
@@ -158,14 +158,14 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phoneNumber">Phone Number</Label>
                 <Input
-                  id="phone"
+                  id="phoneNumber"
                   type="tel"
                   required
                   placeholder="+234 123 456 7890"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                 />
               </div>
 
