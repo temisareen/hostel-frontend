@@ -32,36 +32,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(JSON.parse(storedUser))
     }
   }, [])
-
+  
   const register = async (
     name: string,
     email: string,
     password: string,
     matricNumber: string,
-    role: "student" | "admin" = "student",
-    department?: string,
-    level?: string,
-    phone?: string
-  ) => {
+    role: "student" | "admin" = "student"
+  ): Promise<boolean> => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL
+      console.log("API URL:", apiUrl)
+  
+      const res = await fetch(`${apiUrl}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          matricNumber,
-          role,
-          department,
-          level,
-          phone,
-        }),
+        body: JSON.stringify({ name, email, password, matricNumber, role }),
       })
   
       const data = await res.json()
+      console.log("Response from API:", data)
   
       if (!res.ok) {
         throw new Error(data.message || "Registration failed")
@@ -77,6 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return false
     }
   }
+  
   
   const login = async (
     email: string,
