@@ -17,7 +17,6 @@ interface AuthContextType {
     phoneNumber?: string,
     gender?: string
   ) => Promise<boolean>
-  
   logout: () => void
 }
 
@@ -27,12 +26,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
 
+  // Load user from localStorage on initial render
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    try {
+      const storedUser = localStorage.getItem("user")
+      if (storedUser && storedUser !== "undefined") {
+        setUser(JSON.parse(storedUser))
+      }
+    } catch (err) {
+      console.error("Failed to parse stored user:", err)
+      localStorage.removeItem("user")
     }
   }, [])
+
   const register = async (
     name: string,
     email: string,
@@ -46,8 +52,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   ): Promise<boolean> => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL
-      console.log("API URL:", apiUrl)
-  
       const res = await fetch(`${apiUrl}/auth/register`, {
         method: "POST",
         headers: {
@@ -61,61 +65,67 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           role,
           department,
           level,
-          gender,
           phoneNumber,
+          gender,
         }),
       })
-  
+
       const data = await res.json()
-      console.log("Response from API:", data)
-  
+
       if (!res.ok) {
         throw new Error(data.message || "Registration failed")
       }
-  
-      localStorage.setItem("user", JSON.stringify(data.user))
-      localStorage.setItem("token", data.token)
-      setUser(data.user)
-  
-      return true
+
+      const userData = data.data?.user
+      const token = data.data?.token
+
+      if (userData && token) {
+        localStorage.setItem("user", JSON.stringify(userData))
+        localStorage.setItem("token", token)
+        setUser(userData)
+        return true
+      }
+
+      throw new Error("Invalid response format")
     } catch (err) {
       console.error("Registration error:", err)
       return false
     }
   }
-  
 
-  
   const login = async (
     email: string,
     password: string,
     role: "student" | "admin"
   ): Promise<boolean> => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL
+      const res = await fetch(`${apiUrl}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        body: JSON.stringify({ email, password }),
       })
 
       const data = await res.json()
 
       if (!res.ok) {
-        console.error("API error details:", data.errors) // <-- log validation errors
-        throw new Error(data.message || "Registration failed")
+        console.error("Login API error:", data)
+        throw new Error(data.message || "Login failed")
       }
-      
-      localStorage.setItem("user", JSON.stringify(data.data.user))
-localStorage.setItem("token", data.data.token)
-setUser(data.data.user)
 
+      const userData = data.data?.user
+      const token = data.data?.token
 
-      return true
+      if (userData && token) {
+        localStorage.setItem("user", JSON.stringify(userData))
+        localStorage.setItem("token", token)
+        setUser(userData)
+        return true
+      }
+
+      throw new Error("Invalid login response structure")
     } catch (err) {
       console.error("Login error:", err)
       return false
