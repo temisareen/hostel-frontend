@@ -110,9 +110,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error(data.message || "Registration failed")
       }
       
-      localStorage.setItem("user", JSON.stringify(data.user))
-      localStorage.setItem("token", data.token)
-      setUser(data.user)
+      localStorage.setItem("user", JSON.stringify(data.data.user))
+localStorage.setItem("token", data.data.token)
+setUser(data.data.user)
+
 
       return true
     } catch (err) {
