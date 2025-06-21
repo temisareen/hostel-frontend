@@ -24,6 +24,7 @@ export default function RegisterPage() {
     department: "",
     level: "",
     phone: "",
+    gender:"",
     role: "student",
   })
 
@@ -71,6 +72,7 @@ export default function RegisterPage() {
         formData.role as "student" | "admin",
         formData.department,
         formData.level,
+        formData.gender,
         formData.phone
       )
 
@@ -153,6 +155,20 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
+
+              <div className="space-y-2">
+  <Label htmlFor="gender">Gender</Label>
+  <Select onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+    <SelectTrigger>
+      <SelectValue placeholder="Select gender" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="male">Male</SelectItem>
+      <SelectItem value="female">Female</SelectItem>
+    </SelectContent>
+  </Select>
+</div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>

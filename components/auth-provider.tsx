@@ -14,7 +14,8 @@ interface AuthContextType {
     role?: "student" | "admin",
     department?: string,
     level?: string,
-    phone?: string
+    phone?: string,
+    gender?: string
   ) => Promise<boolean>
   
   logout: () => void
@@ -32,13 +33,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(JSON.parse(storedUser))
     }
   }, [])
-  
   const register = async (
     name: string,
     email: string,
     password: string,
     matricNumber: string,
-    role: "student" | "admin" = "student"
+    role: "student" | "admin" = "student",
+    department?: string,
+    level?: string,
+    phone?: string,
+    gender?: string
   ): Promise<boolean> => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL
@@ -49,7 +53,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password, matricNumber, role }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          matricNumber,
+          role,
+          department,
+          level,
+          gender,
+          phone,
+        }),
       })
   
       const data = await res.json()
@@ -70,6 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
   
+
   
   const login = async (
     email: string,
