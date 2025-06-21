@@ -24,7 +24,7 @@ export default function RegisterPage() {
     department: "",
     level: "",
     phone: "",
-    gender:"",
+    gender: "",
     role: "student",
   })
 
@@ -53,6 +53,7 @@ export default function RegisterPage() {
       })
       return
     }
+
     if (formData.role === "student" && !formData.matricNumber.includes("/")) {
       toast({
         title: "Error",
@@ -72,8 +73,8 @@ export default function RegisterPage() {
         formData.role as "student" | "admin",
         formData.department,
         formData.level,
-        formData.gender,
-        formData.phone
+        formData.phone,
+        formData.gender
       )
 
       if (success) {
@@ -157,20 +158,6 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-  <Label htmlFor="gender">Gender</Label>
-  <Select onValueChange={(value) => setFormData({ ...formData, gender: value })}>
-    <SelectTrigger>
-      <SelectValue placeholder="Select gender" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="male">Male</SelectItem>
-      <SelectItem value="female">Female</SelectItem>
-    </SelectContent>
-  </Select>
-</div>
-
-
-              <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
                   id="phone"
@@ -180,6 +167,21 @@ export default function RegisterPage() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gender">Gender</Label>
+                <Select
+                  onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
