@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -25,8 +24,9 @@ export default function RegisterPage() {
     department: "",
     level: "",
     phone: "",
-    role: "student", // Default role
+    role: "student",
   })
+
   const [isLoading, setIsLoading] = useState(false)
   const { register } = useAuth()
   const { toast } = useToast()
@@ -44,7 +44,6 @@ export default function RegisterPage() {
       return
     }
 
-    // Validate matric number format based on role
     if (formData.role === "admin" && !formData.matricNumber.includes("-")) {
       toast({
         title: "Error",
@@ -64,13 +63,23 @@ export default function RegisterPage() {
 
     setIsLoading(true)
     try {
-      const success = await register(formData.name, formData.email, formData.password, formData.matricNumber)
+      const success = await register(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.matricNumber,
+        formData.role as "student" | "admin",
+        formData.department,
+        formData.level,
+        formData.phone
+      )
+
       if (success) {
         toast({
           title: "Registration successful",
           description: "Welcome to Caleb University Hostel System!",
         })
-        router.push("/student")
+        router.push(formData.role === "admin" ? "/admin" : "/student")
       }
     } catch (error) {
       toast({
@@ -97,7 +106,10 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="role">Register as</Label>
-                <Select onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                <Select
+                  onValueChange={(value) => setFormData({ ...formData, role: value })}
+                  defaultValue="student"
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
@@ -157,7 +169,9 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="department">Department</Label>
-                  <Select onValueChange={(value) => setFormData({ ...formData, department: value })}>
+                  <Select
+                    onValueChange={(value) => setFormData({ ...formData, department: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
@@ -173,7 +187,9 @@ export default function RegisterPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="level">Academic Level</Label>
-                  <Select onValueChange={(value) => setFormData({ ...formData, level: value })}>
+                  <Select
+                    onValueChange={(value) => setFormData({ ...formData, level: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select level" />
                     </SelectTrigger>
@@ -181,7 +197,7 @@ export default function RegisterPage() {
                       <SelectItem value="100">100 Level</SelectItem>
                       <SelectItem value="200">200 Level</SelectItem>
                       <SelectItem value="300">300 Level</SelectItem>
-                      <SelectItem value="400">40 Level</SelectItem>
+                      <SelectItem value="400">400 Level</SelectItem>
                       <SelectItem value="500">500 Level</SelectItem>
                     </SelectContent>
                   </Select>

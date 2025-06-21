@@ -11,8 +11,12 @@ interface AuthContextType {
     email: string,
     password: string,
     matricNumber: string,
-    role?: "student" | "admin"
+    role?: "student" | "admin",
+    department?: string,
+    level?: string,
+    phone?: string
   ) => Promise<boolean>
+  
   logout: () => void
 }
 
@@ -34,7 +38,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     email: string,
     password: string,
     matricNumber: string,
-    role: "student" | "admin" = "student"
+    role: "student" | "admin" = "student",
+    department?: string,
+    level?: string,
+    phone?: string
   ) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
@@ -48,27 +55,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           password,
           matricNumber,
           role,
+          department,
+          level,
+          phone,
         }),
       })
-
+  
       const data = await res.json()
-
+  
       if (!res.ok) {
         throw new Error(data.message || "Registration failed")
       }
-
-      // Optional: Automatically login after register
+  
       localStorage.setItem("user", JSON.stringify(data.user))
       localStorage.setItem("token", data.token)
       setUser(data.user)
-
+  
       return true
     } catch (err) {
       console.error("Registration error:", err)
       return false
     }
   }
-
+  
   const login = async (
     email: string,
     password: string,
